@@ -1,5 +1,7 @@
 package wk6.oct12.src.main.java.com.wk6oct12.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -11,9 +13,10 @@ public class UserModel {
     Integer id;
     String name;
 
-    @Column(unique=true)
+    // @Column(unique=true)
     String email;
 
+    @JsonIgnore
     String password;
     String mobile;
     String address;

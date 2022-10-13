@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -14,10 +15,7 @@ public class UserService {
     @Autowired
     UserRepo userRepo;
 
-    public List<UserModel> allUsers() throws Exception {
-        return userRepo.findAll();
-    }
-
+    // Register User
     public boolean registerUser(UserRequest userReq) throws Exception {
         try {
             UserModel createUser = new UserModel();
@@ -38,5 +36,56 @@ public class UserService {
         }
     }
 
+    // User login
+    public UserModel validateUserLogin(String email,String password) throws Exception{
+        UserModel user = userRepo.getUserByEmailAndPassword(email,password).orElseThrow(()->new Exception("Login Error!"));
+        return user;
+    }
 
+    // Get All Users
+    public List<UserModel> getUsers() throws Exception {
+        return userRepo.findAll();
+    }
+
+    // Get User by ID
+    public UserModel getUser(Integer userId) throws Exception {
+
+        Optional<UserModel> userModel = userRepo.findById(userId);
+        if(userModel.isPresent()){
+            return userModel.get();
+        }else {
+            throw new Exception ("User not found!");
+        }
+    }
+
+    // Update User
+    public boolean updateUser(UserRequest userReq) throws Exception {
+        try {
+            UserModel userModel = userRepo.findById(userReq.getId())
+                    .orElseThrow(()->new Exception("Error, User not found!"));
+            if(userReq.getName() != null && !userReq.getName().equals("")){
+                userModel.setName(userReq.getName());
+            }
+            if(userReq.getEmail() != null && !userReq.getEmail().equals("")){
+                userModel.setEmail(userReq.getEmail());
+            }
+            if(userReq.getMobile() != null && !userReq.getMobile().equals("")){
+                userModel.setMobile(userReq.getMobile());
+            }
+            if(userReq.getAddress() != null && !userReq.getAddress().equals("")){
+                userModel.setAddress(userReq.getAddress());
+            }
+            userRepo.save(userModel);
+                return true;
+        } catch (Exception e){
+            throw e;
+        }
+    }
+
+    // Delete User
+    public boolean deleteUser(Integer userId) throws Exception{
+        UserModel delUser = userRepo.findById(userId).orElseThrow(()->new Exception("Error, User not found!"));
+        userRepo.delete(delUser);
+        return true;
+    }
 }
